@@ -1,5 +1,7 @@
 # Monads
 
+[![Build Status](https://travis-ci.org/ollie/monads-ruby.svg?branch=master)](https://travis-ci.org/ollie/monads-ruby)
+
 TODO: Write a gem description
 
 ## Usage
