@@ -1,11 +1,10 @@
 RSpec.describe Eventually do
   it 'new' do
-    action = lambda do |success|
+    callback = lambda do |success|
       success.call('Hello world')
     end
 
-    eventually = Eventually.new(&action)
-    expect(eventually.unwrap).to eq(action)
+    eventually = Eventually.new(&callback)
     expect(eventually.run { |result| result }).to eq('Hello world')
   end
 

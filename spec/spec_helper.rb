@@ -8,3 +8,5 @@ SimpleCov.start do
 end
 
 require 'monads'
+
+include Monads

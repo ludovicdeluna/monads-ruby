@@ -42,7 +42,7 @@ RSpec.describe Maybe do
   end
 
   it 'from_value + nil + within' do
-    maybe = Maybe.from_value('Hello world').within do |string|
+    maybe = Maybe.from_value('Hello world').within do |_string|
       nil
     end.within do |string|
       string.reverse
@@ -72,7 +72,7 @@ RSpec.describe Maybe do
   end
 
   it 'from_value + nil + and_then' do
-    maybe = Maybe.from_value('Hello world').and_then do |string|
+    maybe = Maybe.from_value('Hello world').and_then do |_string|
       Maybe.from_value(nil)
     end.and_then do |string|
       Maybe.from_value(string.reverse)
