@@ -1,18 +1,15 @@
 class Monad
-  def self.from_value(value)
-    return value if value.is_a?(self)
-    new(value)
-  end
-
-  def method_missing(*args, &block)
+  def within
     and_then do |value|
-      value.public_send(*args, &block)
+      new_value = yield value
+      self.class.from_value(new_value)
     end
   end
 
-  def respond_to_missing?(method_name, include_private = false)
-    super || and_then do |value|
-      return value.respond_to?(method_name, include_private)
-    end
+  def check_type(maybe)
+    return if maybe.is_a?(self.class)
+
+    msg = "Expected an instance of #{ self.class }, got #{ maybe.class }"
+    fail TypeError, msg
   end
 end

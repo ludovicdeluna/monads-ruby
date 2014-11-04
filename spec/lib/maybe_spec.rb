@@ -1,85 +1,103 @@
 RSpec.describe Maybe do
-  context 'With method_missing suger' do
-    it 'nested hash example' do
-      user = {
-        address: {
-          city: 'Boulder'
-        }
-      }
-
-      result = Maybe(user)[:address][:city].unwrap
-      expect(result).to eq('Boulder')
+  context 'With sugar' do
+    it 'from_value + within' do
+      maybe = Maybe.from_value('Hello world').upcase.reverse
+      expect(maybe.unwrap).to eq('DLROW OLLEH')
     end
 
-    it 'nested hash example with missing address' do
-      user = {}
-
-      result = Maybe(user)[:address][:city].unwrap
-      expect(result).to eq(nil)
+    it 'from_value + nil + within' do
+      maybe = Maybe.from_value(nil).upcase.reverse
+      expect(maybe.unwrap).to eq(nil)
     end
 
-    it 'Hello becomes OLLEH' do
-      result = Maybe('Hello').upcase.reverse.unwrap
-
-      expect(result).to eq('OLLEH')
+    it 'new + within' do
+      maybe = Maybe.new('Hello world').upcase.reverse
+      expect(maybe.unwrap).to eq('DLROW OLLEH')
     end
 
-    it 'Hello becomes nil somewhere along the way' do
-      result = Maybe('Hello').and_then do |_v|
-        nil
-      end.reverse.unwrap
-
-      expect(result).to eq(nil)
-    end
-
-    it 'nil is nil' do
-      result = Maybe(nil).unwrap
-
-      expect(result).to eq(nil)
-    end
-
-    it 'responds to :upcase' do
-      wrapped_value = Maybe('Hello')
-
-      expect(wrapped_value.respond_to?(:upcase)).to eq(true)
+    it 'respond_to?' do
+      maybe = Maybe.from_value('Hello world').upcase.reverse
+      expect(maybe.respond_to?(:size)).to eq(true)
     end
   end
 
-  context 'Without sugar' do
-    it 'Hello becomes OLLEH' do
-      result = Maybe('Hello').and_then do |v|
-        v.upcase
-      end.and_then do |v|
-        v.reverse
-      end.unwrap
+  it 'new' do
+    maybe = Maybe.new('Hello world')
+    expect(maybe.unwrap).to eq('Hello world')
+  end
 
-      expect(result).to eq('OLLEH')
+  it 'from_value' do
+    maybe = Maybe.from_value('Hello world')
+    expect(maybe.unwrap).to eq('Hello world')
+  end
+
+  it 'from_value + within' do
+    maybe = Maybe.from_value('Hello world').within do |string|
+      string.upcase
+    end.within do |string|
+      string.reverse
     end
 
-    it 'Hello becomes nil somewhere along the way' do
-      result = Maybe('Hello').and_then do |_v|
-        nil
-      end.and_then do |v|
-        v.reverse
-      end.unwrap
+    expect(maybe.unwrap).to eq('DLROW OLLEH')
+  end
 
-      expect(result).to eq(nil)
+  it 'from_value + nil + within' do
+    maybe = Maybe.from_value('Hello world').within do |string|
+      nil
+    end.within do |string|
+      string.reverse
     end
 
-    it 'nil is nil' do
-      result = Maybe(nil).unwrap
+    expect(maybe.unwrap).to eq(nil)
+  end
 
-      expect(result).to eq(nil)
+  it 'new + within' do
+    maybe = Maybe.new('Hello world').within do |string|
+      string.upcase
+    end.within do |string|
+      string.reverse
     end
 
-    it 'nil is nil 2' do
-      result = Maybe(nil).and_then do |_v|
-        nil
-      end.and_then do |_v|
-        nil
-      end.unwrap
+    expect(maybe.unwrap).to eq('DLROW OLLEH')
+  end
 
-      expect(result).to eq(nil)
+  it 'from_value + and_then' do
+    maybe = Maybe.from_value('Hello world').and_then do |string|
+      Maybe.from_value(string.upcase)
+    end.and_then do |string|
+      Maybe.from_value(string.reverse)
     end
+
+    expect(maybe.unwrap).to eq('DLROW OLLEH')
+  end
+
+  it 'from_value + nil + and_then' do
+    maybe = Maybe.from_value('Hello world').and_then do |string|
+      Maybe.from_value(nil)
+    end.and_then do |string|
+      Maybe.from_value(string.reverse)
+    end
+
+    expect(maybe.unwrap).to eq(nil)
+  end
+
+  it 'new + and_then' do
+    maybe = Maybe.new('Hello world').and_then do |string|
+      Maybe.new(string.upcase)
+    end.and_then do |string|
+      Maybe.new(string.reverse)
+    end
+
+    expect(maybe.unwrap).to eq('DLROW OLLEH')
+  end
+
+  it 'new + and_then raises an error when result is not a Maybe' do
+    expect do
+      Maybe.new('Hello world').and_then do |string|
+        string.upcase
+      end.and_then do |string|
+        Maybe.new(string.reverse)
+      end
+    end.to raise_error(TypeError)
   end
 end
