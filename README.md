@@ -7,29 +7,46 @@ TODO: Write a gem description
 ## Usage
 
 ```ruby
+require 'monads/maybe'
 include Monads
 
-maybe = Maybe.from_value('Hello world').upcase.reverse
+maybe = Maybe.new('Hello world').upcase.reverse
 maybe.class  # => Maybe
 maybe.unwrap # => 'Hello world'
 
-maybe = Maybe.from_value(nil).upcase.reverse
+maybe = Maybe.new(nil).upcase.reverse
 maybe.class  # => Maybe
 maybe.unwrap # => nil
 
-maybe = Maybe.from_value('Hello world').make_nil.upcase.reverse
+maybe = Maybe.new('Hello world').make_nil.upcase.reverse
 maybe.class  # => Maybe
 maybe.unwrap # => nil
+```
 
-eventually = Eventually.from_value('Hello world').within do |string|
-  string.upcase
-end.within do |string|
-  string.reverse
+```ruby
+require 'monads/eventually'
+include Monads
+
+eventually = Eventually.new do |success|
+  intermediate_result = 5
+  success.call(intermediate_result)
+end.and_then do |intermediate_result|
+  final_result = intermediate_result * 2
+
+  Eventually.new do |success|
+    success.call(final_result)
+  end
 end
 
-value = eventually.run do |string|
-  "Got result: #{ string }"
-end # => 'Got result: DLROW OLLEH'
+eventually.run do |result|
+  puts "The result is #{ result }"
+  # => "The result is 10"
+end
+```
+
+```ruby
+require 'monads'
+include Monads
 ```
 
 ## Installation

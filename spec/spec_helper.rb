@@ -1,5 +1,4 @@
 require 'bundler/setup'
-
 require 'simplecov'
 
 # Coverage tool, needs to be started as soon as possible
@@ -8,5 +7,4 @@ SimpleCov.start do
 end
 
 require 'monads'
-
 include Monads

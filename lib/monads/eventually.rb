@@ -1,97 +1,99 @@
 module Monads
   # Chain deferred callbacks.
-  #
-  # @example
-  #   include Monads
-  #
-  #   eventually = Eventually.from_value('Hello world').within do |string|
-  #     string.upcase
-  #   end.within do |string|
-  #     string.reverse
-  #   end
-  #
-  #   value = eventually.run do |string|
-  #     "Got result: #{ string }"
-  #   end # => 'Got result: DLROW OLLEH'
-  class Eventually < Monad
-    # Wrap a callback into an Eventually monad. Since monads are chainable
-    # it's easy to define multiple callbacks without the pyramid of doom.
+  class Eventually
+    # Create a new +Eventually+, pass in the block meant to be run later.
     #
     # @example
-    #   eventually = Eventually.from_value('Hello world')
-    #   eventually.run { |result| result } # => 'Hello world'
+    #   e = Eventually.new do |success|
+    #     intermediate_result = 5
+    #     success.call(intermediate_result)
+    #   end.and_then do |intermediate_result|
+    #     final_result = intermediate_result * 2
     #
-    # @param value [Object] Any value.
-    #
-    # @return [Eventually]
-    def self.from_value(value)
-      new do |success|
-        success.call(value)
-      end
-    end
-
-    # Wrap a callback into an Eventually monad. Since monads are chainable
-    # it's easy to define multiple callbacks without the pyramid of doom.
-    #
-    # @example
-    #   eventually = Eventually.new do |success|
-    #     success.call('Hello world')
+    #     Eventually.new do |success|
+    #       success.call(final_result)
+    #     end
     #   end
     #
-    #   eventually.run { |result| result } # => 'Hello world'
-    #
-    # @param callback [Proc] Callback to be run later.
-    #
-    # @return [Eventually]
-    def initialize(&callback)
-      @callback = callback
-    end
-
-    # Take a block and call the callback with it. The callback will then
-    # call it with the value.
-    #
-    # @example
-    #   eventually = Eventually.new do |success|
-    #     success.call('Hello world')
+    #   e.run do |result|
+    #     puts "The result is #{ result }"
+    #     # => "The result is 10"
     #   end
     #
-    #   eventually.run { |result| result } # => 'Hello world'
-    #
-    # @param success [Proc] A block to be passed to +callback+.
-    #
-    # @return [Object]
-    def run(&success)
-      @callback.call(success)
+    # @param deferred [Proc] Callback to be run later.
+    def initialize(&deferred)
+      @deferred = deferred
     end
 
-    # Chain with another Eventually monad. The passed block needs to return
-    # a monad.
+    # Chain another action. This creates a new instance holding a reference
+    # to the previous one, but nothing is run at this point.
+    #
+    # Only when this new instance is run, all other instances are run in order
+    # and fed into the next one.
+    #
+    # It is necessary to return another +Eventually+ from the block otherwise
+    # chaining would not be possible
     #
     # @example
-    #   eventually = Eventually.from_value('Hello world').and_then do |string|
-    #     Eventually.from_value(string.upcase)
-    #   end.and_then do |string|
-    #     Eventually.from_value(string.reverse)
+    #   e = Eventually.new do |success|
+    #     intermediate_result = 5
+    #     success.call(intermediate_result)
+    #   end.and_then do |intermediate_result|
+    #     final_result = intermediate_result * 2
+    #
+    #     Eventually.new do |success|
+    #       success.call(final_result)
+    #     end
     #   end
     #
-    #   value = eventually.run do |string|
-    #     "Got result: #{ string }"
-    #   end # => 'Got result: DLROW OLLEH'
+    #   e.run do |result|
+    #     puts "The result is #{ result }"
+    #     # => "The result is 10"
+    #   end
     #
-    # @see Monad#within
-    #
-    # @param callback [Proc] New callback to be run later,
+    # @param deferred [Proc] New callback to be run later,
     #                        Must return another +Eventually+.
     #
     # @return [Eventually] New monad to be run later.
-    def and_then(&callback)
+    def and_then(&deferred)
       self.class.new do |success|
         run do |value|
-          new_eventually = callback.call(value)
+          new_eventually = deferred.call(value)
           check_type(new_eventually)
           new_eventually.run(&success)
         end
       end
+    end
+
+    # Execute the dereffed action and give it the success block.
+    # The action may then call the success block.
+    #
+    # @example
+    #   e = Eventually.new do |success|
+    #     result = 5
+    #     success.call(result)
+    #   end
+    #
+    #   e.run do |result|
+    #     puts "The result is #{ result }"
+    #     # => "The result is 5"
+    #   end
+    #
+    # @param success [Proc] A block to be passed to +@deferred+.
+    def run(&success)
+      @deferred.call(success)
+    end
+
+    protected
+
+    # Check if the result is an +Eventually+ and raise a +TypeError+ if not.
+    #
+    # @param result [Object] Expected a +Eventually+.
+    def check_type(result)
+      return if result.is_a?(self.class)
+
+      msg = "Expected an instance of #{ self.class }, got #{ result.class }"
+      fail TypeError, msg
     end
   end
 end

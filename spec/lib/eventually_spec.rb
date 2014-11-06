@@ -8,56 +8,6 @@ RSpec.describe Eventually do
     expect(eventually.run { |result| result }).to eq('Hello world')
   end
 
-  it 'from_value' do
-    eventually = Eventually.from_value('Hello world')
-    expect(eventually).to be_a(Eventually)
-    expect(eventually.run { |result| result }).to eq('Hello world')
-  end
-
-  it 'from_value + within' do
-    eventually = Eventually.from_value('Hello world').within do |string|
-      string.upcase
-    end.within do |string|
-      string.reverse
-    end
-
-    value = eventually.run do |string|
-      "Got result: #{ string }"
-    end
-
-    expect(value).to eq('Got result: DLROW OLLEH')
-  end
-
-  it 'new + within' do
-    eventually = Eventually.new do |success|
-      success.call('Hello world')
-    end.within do |string|
-      string.upcase
-    end.within do |string|
-      string.reverse
-    end
-
-    value = eventually.run do |string|
-      "Got result: #{ string }"
-    end
-
-    expect(value).to eq('Got result: DLROW OLLEH')
-  end
-
-  it 'from_value + and_then' do
-    eventually = Eventually.from_value('Hello world').and_then do |string|
-      Eventually.from_value(string.upcase)
-    end.and_then do |string|
-      Eventually.from_value(string.reverse)
-    end
-
-    value = eventually.run do |string|
-      "Got result: #{ string }"
-    end
-
-    expect(value).to eq('Got result: DLROW OLLEH')
-  end
-
   it 'new + and_then' do
     eventually = Eventually.new do |success|
       success.call('Hello world')

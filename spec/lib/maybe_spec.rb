@@ -1,22 +1,17 @@
 RSpec.describe Maybe do
   context 'With sugar' do
-    it 'from_value + within' do
-      maybe = Maybe.from_value('Hello world').upcase.reverse
-      expect(maybe.unwrap).to eq('DLROW OLLEH')
-    end
-
-    it 'from_value + nil + within' do
-      maybe = Maybe.from_value(nil).upcase.reverse
-      expect(maybe.unwrap).to eq(nil)
-    end
-
-    it 'new + within' do
+    it 'new + and_then' do
       maybe = Maybe.new('Hello world').upcase.reverse
       expect(maybe.unwrap).to eq('DLROW OLLEH')
     end
 
+    it 'new + nil + and_then' do
+      maybe = Maybe.new(nil).upcase.reverse
+      expect(maybe.unwrap).to eq(nil)
+    end
+
     it 'respond_to?' do
-      maybe = Maybe.from_value('Hello world').upcase.reverse
+      maybe = Maybe.new('Hello world').upcase.reverse
       expect(maybe.respond_to?(:size)).to eq(true)
     end
   end
@@ -24,61 +19,6 @@ RSpec.describe Maybe do
   it 'new' do
     maybe = Maybe.new('Hello world')
     expect(maybe.unwrap).to eq('Hello world')
-  end
-
-  it 'from_value' do
-    maybe = Maybe.from_value('Hello world')
-    expect(maybe.unwrap).to eq('Hello world')
-  end
-
-  it 'from_value + within' do
-    maybe = Maybe.from_value('Hello world').within do |string|
-      string.upcase
-    end.within do |string|
-      string.reverse
-    end
-
-    expect(maybe.unwrap).to eq('DLROW OLLEH')
-  end
-
-  it 'from_value + nil + within' do
-    maybe = Maybe.from_value('Hello world').within do |_string|
-      nil
-    end.within do |string|
-      string.reverse
-    end
-
-    expect(maybe.unwrap).to eq(nil)
-  end
-
-  it 'new + within' do
-    maybe = Maybe.new('Hello world').within do |string|
-      string.upcase
-    end.within do |string|
-      string.reverse
-    end
-
-    expect(maybe.unwrap).to eq('DLROW OLLEH')
-  end
-
-  it 'from_value + and_then' do
-    maybe = Maybe.from_value('Hello world').and_then do |string|
-      Maybe.from_value(string.upcase)
-    end.and_then do |string|
-      Maybe.from_value(string.reverse)
-    end
-
-    expect(maybe.unwrap).to eq('DLROW OLLEH')
-  end
-
-  it 'from_value + nil + and_then' do
-    maybe = Maybe.from_value('Hello world').and_then do |_string|
-      Maybe.from_value(nil)
-    end.and_then do |string|
-      Maybe.from_value(string.reverse)
-    end
-
-    expect(maybe.unwrap).to eq(nil)
   end
 
   it 'new + and_then' do

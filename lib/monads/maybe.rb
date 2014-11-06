@@ -1,46 +1,8 @@
 module Monads
-  # Wrap a value into a Maybe monad. Since monads are chainable and every value
-  # is wrapped in one, things don't blow up with +NoMethodError+ on +nil+s.
-  #
-  # @example
-  #   include Monads
-  #
-  #   maybe = Maybe.from_value('Hello world').upcase.reverse
-  #   maybe.class  # => Maybe
-  #   maybe.unwrap # => 'Hello world'
-  #
-  #   maybe = Maybe.from_value(nil).upcase.reverse
-  #   maybe.class  # => Maybe
-  #   maybe.unwrap # => nil
-  #
-  #   maybe = Maybe.from_value('Hello world').make_nil.upcase.reverse
-  #   maybe.class  # => Maybe
-  #   maybe.unwrap # => nil
-  class Maybe < Monad
-    # Wrap a value into a Maybe monad. Since monads are chainable and every
-    # value is wrapped in one, things don't blow up with +NoMethodError+ on
-    # +nil+s.
-    #
-    # @example
-    #   maybe = Maybe.from_value('Hello world').upcase.reverse
-    #   maybe.class  # => Maybe
-    #   maybe.unwrap # => 'Hello world'
-    #
-    #   maybe = Maybe.from_value(nil).upcase.reverse
-    #   maybe.class  # => Maybe
-    #   maybe.unwrap # => nil
-    #
-    #   maybe = Maybe.from_value('Hello world').make_nil.upcase.reverse
-    #   maybe.class  # => Maybe
-    #   maybe.unwrap # => nil
-    #
-    # @param value [Object] Any value including +nil+.
-    #
-    # @return [Maybe]
-    def self.from_value(value)
-      new(value)
-    end
-
+  # Wrap a value into a Maybe monad. Since monads are chainable and every
+  # value is wrapped in one, things don't blow up with +NoMethodError+ on
+  # +nil+s.
+  class Maybe
     # Wrap a value into a Maybe monad. Since monads are chainable and every
     # value is wrapped in one, things don't blow up with +NoMethodError+ on
     # +nil+s.
@@ -78,8 +40,6 @@ module Monads
     # Chain with another Maybe monad. The yielded block needs to return a monad.
     # This is pretty verbose so it's easier to use the method_missing sugar.
     #
-    # @see Monad#within
-    #
     # @example
     #   Maybe.new('Hello world').and_then do |string|
     #     Maybe.new(string.upcase)
@@ -108,20 +68,13 @@ module Monads
     # Syntactic sugar for easy monad chaining with simple method calls.
     #
     # @example
-    #   Maybe.new('Hello world').within do |string|
-    #     string.upcase
-    #   end.within do |string|
-    #     string.reverse
-    #   end
-    #
-    #   # Becomes:
-    #
     #   Maybe.new('Hello world').upcase.reverse
     #
     # @return [Maybe] The result wrapped in a +Maybe+.
     def method_missing(*args, &block)
-      within do |value|
-        value.public_send(*args, &block)
+      and_then do |value|
+        new_value = value.public_send(*args, &block)
+        self.class.new(new_value)
       end
     end
 
@@ -135,6 +88,18 @@ module Monads
       super || and_then do |value|
         return value.respond_to?(method_name, include_private)
       end
+    end
+
+    protected
+
+    # Check if the result is an +Eventually+ and raise a +TypeError+ if not.
+    #
+    # @param result [Object] Expected a +Eventually+.
+    def check_type(result)
+      return if result.is_a?(self.class)
+
+      msg = "Expected an instance of #{ self.class }, got #{ result.class }"
+      fail TypeError, msg
     end
   end
 end
