@@ -2,7 +2,9 @@
 
 [![Build Status](https://travis-ci.org/ollie/monads-ruby.svg?branch=master)](https://travis-ci.org/ollie/monads-ruby)
 
-TODO: Write a gem description
+This gem is heavily based on Tom Stuart's https://github.com/tomstuart/monads
+but hasn't been pushed to rubygems.org. If it turns out to be useful, it may
+be pushed with a different name so it doesn't clash with Tom's gem.
 
 ## Usage
 
