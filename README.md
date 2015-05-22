@@ -1,6 +1,4 @@
-# Monads
-
-[![Build Status](https://travis-ci.org/ollie/monads-ruby.svg?branch=master)](https://travis-ci.org/ollie/monads-ruby)
+# Monads [![Build Status](https://img.shields.io/travis/ollie/monads-ruby/master.svg)](https://travis-ci.org/ollie/monads-ruby) [![Code Climate](https://img.shields.io/codeclimate/github/ollie/monads-ruby.svg)](https://codeclimate.com/github/ollie/monads-ruby)
 
 This gem is heavily based on Tom Stuart's https://github.com/tomstuart/monads
 but hasn't been pushed to rubygems.org. If it turns out to be useful, it may
@@ -62,6 +60,10 @@ gem 'monads', git: 'https://github.com/ollie/monads-ruby.git'
 And then execute:
 
     $ bundle
+
+## Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `bin/console` for an interactive prompt that will allow you to experiment.
 
 ## Contributing
 
