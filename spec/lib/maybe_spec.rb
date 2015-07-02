@@ -33,9 +33,7 @@ RSpec.describe Maybe do
 
   it 'new + and_then raises an error when result is not a Maybe' do
     expect do
-      Maybe.new('Hello world').and_then do |string|
-        string.upcase
-      end.and_then do |string|
+      Maybe.new('Hello world').and_then(&:upcase).and_then do |string|
         Maybe.new(string.reverse)
       end
     end.to raise_error(TypeError)

@@ -92,7 +92,7 @@ module Monads
     def check_type(result)
       return if result.is_a?(self.class)
 
-      msg = "Expected an instance of #{ self.class }, got #{ result.class }"
+      msg = "Expected an instance of #{self.class}, got #{result.class}"
       fail TypeError, msg
     end
   end

@@ -22,7 +22,7 @@ RSpec.describe Eventually do
     end
 
     value = eventually.run do |string|
-      "Got result: #{ string }"
+      "Got result: #{string}"
     end
 
     expect(value).to eq('Got result: DLROW OLLEH')
@@ -31,9 +31,7 @@ RSpec.describe Eventually do
   it 'new + and_then raises an error when result is not an Eventually' do
     eventually = Eventually.new do |success|
       success.call('Hello world')
-    end.and_then do |string|
-      string.upcase
-    end.and_then do |string|
+    end.and_then(&:upcase).and_then do |string|
       Eventually.new do |success|
         success.call(string.reverse)
       end
@@ -41,7 +39,7 @@ RSpec.describe Eventually do
 
     expect do
       eventually.run do |string|
-        "Got result: #{ string }"
+        "Got result: #{string}"
       end
     end.to raise_error(TypeError)
   end
