@@ -16,7 +16,7 @@ module Monads
     #   end
     #
     #   e.run do |result|
-    #     puts "The result is #{ result }"
+    #     puts "The result is #{result}"
     #     # => "The result is 10"
     #   end
     #
@@ -47,7 +47,7 @@ module Monads
     #   end
     #
     #   e.run do |result|
-    #     puts "The result is #{ result }"
+    #     puts "The result is #{result}"
     #     # => "The result is 10"
     #   end
     #
@@ -75,7 +75,7 @@ module Monads
     #   end
     #
     #   e.run do |result|
-    #     puts "The result is #{ result }"
+    #     puts "The result is #{result}"
     #     # => "The result is 5"
     #   end
     #

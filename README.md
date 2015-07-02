@@ -39,7 +39,7 @@ end.and_then do |intermediate_result|
 end
 
 eventually.run do |result|
-  puts "The result is #{ result }"
+  puts "The result is #{result}"
   # => "The result is 10"
 end
 ```
